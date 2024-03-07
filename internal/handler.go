@@ -25,7 +25,7 @@ func NewHandler(config *Config) *http.ServeMux {
 	mux := http.NewServeMux()
 	mux.Handle(pathPrefix+"/image/transform/{source}/{path...}", transformHandler)
 	mux.Handle(pathPrefix+"/proxy/{source}/{path...}", proxyHandler)
-	mux.Handle(pathPrefix+"/", defaultRouteHandler)
+	mux.Handle("/", defaultRouteHandler)
 
 	return mux
 }
