@@ -28,6 +28,7 @@ type Config struct {
 
 	Sources      map[string]string
 	SecretKey    string
+	AuthToken    string
 	CacheControl string
 	PathPrefix   string
 
@@ -44,6 +45,7 @@ func NewConfig() (*Config, error) {
 
 		Sources:      getKeyValues("SOURCES"),
 		SecretKey:    getEnvString("SECRET_KEY", ""),
+		AuthToken:    getEnvString("AUTH_TOKEN", ""),
 		CacheControl: getEnvString("CACHE_CONTROL", defaultCacheControl),
 		PathPrefix:   getEnvString("PATH_PREFIX", ""),
 
