@@ -28,11 +28,13 @@ func (h *LoggingMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	slog.Info("Request",
 		"method", r.Method,
+		"host", currentRequestHost(r),
 		"path", r.URL.Path,
 		"query", queryString,
-		"remote_add", remoteAddr,
+		"remote_addr", remoteAddr,
 		"user_agent", userAgent,
 		"resp_content_type", respContent,
 		"duration", elapsed,
+		"headers", r.Header,
 	)
 }
