@@ -42,7 +42,7 @@ func main() {
 func setLogger() {
 	level := slog.LevelInfo
 
-	switch os.Getenv("LOG_LEVEL") {
+	switch os.Getenv("MEDIATOR_LOG_LEVEL") {
 	case "debug":
 		level = slog.LevelDebug
 	case "error":

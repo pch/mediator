@@ -40,19 +40,19 @@ type Config struct {
 
 func NewConfig() (*Config, error) {
 	return &Config{
-		DownloadMaxSize: getEnvInt("DOWNLOAD_MAX_SIZE", defaultDownloadMaxSize),
-		DownloadTimeout: getEnvDuration("DOWNLOAD_TIMEOUT", defaultDownloadTimeout),
+		DownloadMaxSize: getEnvInt("MEDIATOR_DOWNLOAD_MAX_SIZE", defaultDownloadMaxSize),
+		DownloadTimeout: getEnvDuration("MEDIATOR_DOWNLOAD_TIMEOUT", defaultDownloadTimeout),
 
-		Sources:      getKeyValues("SOURCES"),
-		SecretKey:    getEnvString("SECRET_KEY", ""),
-		AuthToken:    getEnvString("AUTH_TOKEN", ""),
-		CacheControl: getEnvString("CACHE_CONTROL", defaultCacheControl),
-		PathPrefix:   getEnvString("PATH_PREFIX", ""),
+		Sources:      getKeyValues("MEDIATOR_SOURCES"),
+		SecretKey:    getEnvString("MEDIATOR_SECRET_KEY", ""),
+		AuthToken:    getEnvString("MEDIATOR_AUTH_TOKEN", ""),
+		CacheControl: getEnvString("MEDIATOR_CACHE_CONTROL", defaultCacheControl),
+		PathPrefix:   getEnvString("MEDIATOR_PATH_PREFIX", ""),
 
-		HttpPort:         getEnvInt("HTTP_PORT", defaultHttpPort),
-		HttpIdleTimeout:  getEnvDuration("HTTP_IDLE_TIMEOUT", defaultHttpIdleTimeout),
-		HttpReadTimeout:  getEnvDuration("HTTP_READ_TIMEOUT", defaultHttpReadTimeout),
-		HttpWriteTimeout: getEnvDuration("HTTP_WRITE_TIMEOUT", defaultHttpWriteTimeout),
+		HttpPort:         getEnvInt("MEDIATOR_HTTP_PORT", defaultHttpPort),
+		HttpIdleTimeout:  getEnvDuration("MEDIATOR_HTTP_IDLE_TIMEOUT", defaultHttpIdleTimeout),
+		HttpReadTimeout:  getEnvDuration("MEDIATOR_HTTP_READ_TIMEOUT", defaultHttpReadTimeout),
+		HttpWriteTimeout: getEnvDuration("MEDIATOR_HTTP_WRITE_TIMEOUT", defaultHttpWriteTimeout),
 	}, nil
 }
 
