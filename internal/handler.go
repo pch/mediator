@@ -8,8 +8,7 @@ import (
 func NewImageHandler(config *Config, handler http.Handler) http.Handler {
 	signatureMiddleware := NewSignatureMiddleware(config.SecretKey, handler)
 	sourceMiddleware := NewSourceMiddleware(config, signatureMiddleware)
-	cacheMiddleware := NewCacheMiddleware(config.CacheControl, sourceMiddleware)
-	authMiddleware := NewAuthMiddleware(config, cacheMiddleware)
+	authMiddleware := NewAuthMiddleware(config, sourceMiddleware)
 	loggingMiddleware := NewLoggingMiddleware(authMiddleware)
 
 	return loggingMiddleware

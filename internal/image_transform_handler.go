@@ -1,6 +1,9 @@
 package internal
 
 import (
+	"crypto/sha1"
+	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -50,8 +53,16 @@ func (h *ImageTransformHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 		w.Header().Set("Vary", "Accept")
 	}
 
+	w.Header().Set("Cache-Control", h.config.CacheControl)
+	w.Header().Set("ETag", generateETag(processedImage.Bytes))
 	w.Header().Set("Content-Type", processedImage.Mime)
 	w.Header().Set("Content-Length", strconv.Itoa(processedImage.Size))
 	w.WriteHeader(http.StatusOK)
 	w.Write(processedImage.Bytes)
+}
+
+func generateETag(data []byte) string {
+	h := sha1.New()
+	io.WriteString(h, string(data))
+	return fmt.Sprintf("\"%x\"", h.Sum(nil))
 }
