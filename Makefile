@@ -4,19 +4,10 @@ VERSION ?= $(shell cat VERSION | tr -d '\n')
 PORT ?= 8000
 
 build:
-	docker buildx build --target production --tag ${IMAGE}:${VERSION} .
+	docker buildx build --push --target production --platform linux/amd64,linux/arm64 --tag ${IMAGE}:${VERSION} --tag ${IMAGE}:latest .
 
 build-dev:
 	docker buildx build --target development --tag ${IMAGE_DEV} --progress plain .
-
-push:
-	docker push ${IMAGE}:${VERSION}
-
-release:
-	git tag -a "v${VERSION}" -m "Release ${VERSION}"
-	docker pull ${IMAGE}:${VERSION}
-	docker tag  ${IMAGE}:${VERSION} ${IMAGE}:latest
-	docker push ${IMAGE}:latest
 
 run-dev:
 	docker run --rm -it --env-file .env \
