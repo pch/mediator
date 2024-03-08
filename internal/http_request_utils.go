@@ -83,10 +83,6 @@ func removeParamFromQuery(r *http.Request, paramName string) {
 	r.URL.RawQuery = queryValues.Encode()
 }
 
-func currentRequestUrl(r *http.Request) string {
-	return currentRequestHost(r) + r.URL.String()
-}
-
 func currentRequestHost(r *http.Request) string {
 	scheme := "http"
 	if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {

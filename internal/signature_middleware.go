@@ -25,8 +25,7 @@ func (h *SignatureMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	url := currentRequestUrl(r)
-	expectedSignature := computeHmac(url, h.secret)
+	expectedSignature := computeHmac(r.URL.String(), h.secret)
 
 	if !signaturesMatch(signature, expectedSignature) {
 		http.Error(w, "Invalid signature", http.StatusBadRequest)
