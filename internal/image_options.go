@@ -28,6 +28,7 @@ type ImageOptions struct {
 	RequestedFormat string
 	AutoRotate      bool
 	PixelateFactor  int
+	Page            int
 }
 
 const (
@@ -47,6 +48,7 @@ func NewImageOptionsFromRequest(r *http.Request) *ImageOptions {
 	stripMetadata := getQueryParamBoolWithDefault(ParamStripMetadata, defaultStripMetadata, r)
 	format := getQueryParamWithDefault(ParamFormat, "", r)
 	pixelateFactor := getQueryParamIntWithDefault(ParamPixelateFactor, defaultPixelateFactor, r)
+	page := getQueryParamIntWithDefault("page", 1, r)
 
 	var imageType vips.ImageType
 
@@ -66,5 +68,6 @@ func NewImageOptionsFromRequest(r *http.Request) *ImageOptions {
 		RequestedFormat: format,
 		AutoRotate:      stripMetadata,
 		PixelateFactor:  pixelateFactor,
+		Page:            page,
 	}
 }

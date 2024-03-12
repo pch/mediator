@@ -26,7 +26,10 @@ func TransformImage(imageBytes []byte, imageOptions *ImageOptions) (*ProcessedIm
 		return nil, fmt.Errorf("no operations specified")
 	}
 
-	image, err := vips.NewImageFromBuffer(imageBytes)
+	params := vips.NewImportParams()
+	params.Page.Set(imageOptions.Page)
+
+	image, err := vips.LoadImageFromBuffer(imageBytes, params)
 	if err != nil {
 		return nil, err
 	}

@@ -17,6 +17,8 @@ func ImageType(name string) vips.ImageType {
 		return vips.ImageTypeWEBP
 	case "gif":
 		return vips.ImageTypeGIF
+	case "pdf":
+		return vips.ImageTypePDF
 	default:
 		return vips.ImageTypeUnknown
 	}
@@ -33,6 +35,8 @@ func ImageTypeFromMimeType(mimeType string) vips.ImageType {
 		return vips.ImageTypeWEBP
 	case "image/gif":
 		return vips.ImageTypeGIF
+	case "application/pdf":
+		return vips.ImageTypePDF
 	default:
 		return vips.ImageTypeUnknown
 	}
@@ -48,6 +52,8 @@ func ImageTypeFromAccept(accept string) vips.ImageType {
 			return vips.ImageTypePNG
 		case "image/jpeg":
 			return vips.ImageTypeJPEG
+		case "application/pdf":
+			return vips.ImageTypePDF
 		}
 	}
 

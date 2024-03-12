@@ -29,6 +29,7 @@ See also: [example code](https://github.com/pch/mediator/tree/main/examples)
 - **Easy to deploy**. Just use the provided Docker image.
 - **Most common image operations**. Resize, crop, apply effects, and more.
 - **Auto WebP**. Auto-convert images to WebP and serve them to browsers that support it.
+- **PDF preview**. Generate preview images for PDF files.
 
 ## Considerations
 
@@ -66,6 +67,7 @@ The `/image/transform` endpoint accepts the following query parameters:
 | `strip`          | Strip metadata from the image. Supported values: `true`, `false`. Default: `true`                                                                                                |
 | `q`              | Quality of the output image. Supported values: `0-100`. Default: `80`                                                                                                            |
 | `pixelatefactor` | Pixelate factor, for example: `1-100`. The smaller the number, the less "pixelized" the result will be. Default: `20`                                                            |
+| `page`           | Page number, used for PDF previews and for GIF previews (the number of the frame to extract). Default: `1`                                                                       |
 | `s`              | Signature. Required when `MEDIATOR_SECRET_KEY` is set.                                                                                                                           |
 
 #### Operations
