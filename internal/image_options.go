@@ -36,6 +36,7 @@ const (
 	defaultQuality        = 80
 	defaultStripMetadata  = true
 	defaultPixelateFactor = 20
+	defaultPage           = 1
 
 	formatAuto = "auto"
 )
@@ -48,7 +49,7 @@ func NewImageOptionsFromRequest(r *http.Request) *ImageOptions {
 	stripMetadata := getQueryParamBoolWithDefault(ParamStripMetadata, defaultStripMetadata, r)
 	format := getQueryParamWithDefault(ParamFormat, "", r)
 	pixelateFactor := getQueryParamIntWithDefault(ParamPixelateFactor, defaultPixelateFactor, r)
-	page := getQueryParamIntWithDefault("page", 1, r)
+	page := getQueryParamIntWithDefault("page", defaultPage, r)
 
 	var imageType vips.ImageType
 
