@@ -35,7 +35,7 @@ func generateETag(sourceURL string, imageOptions *ImageOptions) string {
 }
 
 func (h *ImageTransformHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	imageSource := getImageSource(r.Context())
+	imageSource := getMediaSource(r.Context())
 	imageOptions := NewImageOptionsFromRequest(r)
 
 	etag := generateETag(imageSource.URL, imageOptions)

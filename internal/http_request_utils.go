@@ -110,3 +110,19 @@ func ensureValidPathPrefixFormat(path string) string {
 
 	return strings.TrimSuffix(path, "/")
 }
+
+func mergeRequestQueryParams(targetURL string, queryParams url.Values) (string, error) {
+	parsedURL, err := url.Parse(targetURL)
+	if err != nil {
+		return "", err
+	}
+
+	query := parsedURL.Query()
+	for key, values := range queryParams {
+		for _, value := range values {
+			query.Add(key, value)
+		}
+	}
+	parsedURL.RawQuery = query.Encode()
+	return parsedURL.String(), nil
+}

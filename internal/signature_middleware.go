@@ -18,7 +18,7 @@ func NewSignatureMiddleware(secret string, next http.Handler) *SignatureMiddlewa
 
 func (h *SignatureMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	signature := r.URL.Query().Get(SignatureParam)
-	removeParamFromQuery(r, SignatureParam) // remove signature from query so it's not forwarded (e.g. in the proxy handler)
+	removeParamFromQuery(r, SignatureParam) // remove signature from query so it's not forwarded (e.g. in the render handler)
 
 	if h.secret == "" {
 		h.next.ServeHTTP(w, r)

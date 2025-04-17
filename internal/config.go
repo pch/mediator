@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"encoding/json"
 	"os"
 	"strconv"
 	"strings"
@@ -27,6 +28,7 @@ type Config struct {
 	DownloadTimeout time.Duration
 
 	Sources      map[string]string
+	Renderers    map[string]string
 	SecretKey    string
 	AuthToken    string
 	CacheControl string
@@ -43,7 +45,8 @@ func NewConfig() (*Config, error) {
 		DownloadMaxSize: getEnvInt("MEDIATOR_DOWNLOAD_MAX_SIZE", defaultDownloadMaxSize),
 		DownloadTimeout: getEnvDuration("MEDIATOR_DOWNLOAD_TIMEOUT", defaultDownloadTimeout),
 
-		Sources:      getKeyValues("MEDIATOR_SOURCES"),
+		Sources:      getKeyValues("MEDIATOR_SOURCES", make(map[string]string)),
+		Renderers:    getKeyValues("MEDIATOR_RENDERERS", make(map[string]string)),
 		SecretKey:    getEnvString("MEDIATOR_SECRET_KEY", ""),
 		AuthToken:    getEnvString("MEDIATOR_AUTH_TOKEN", ""),
 		CacheControl: getEnvString("MEDIATOR_CACHE_CONTROL", defaultCacheControl),
@@ -93,20 +96,17 @@ func getEnvDuration(key string, defaultValue time.Duration) time.Duration {
 	return time.Duration(intValue) * time.Second
 }
 
-func getKeyValues(key string) map[string]string {
+func getKeyValues(key string, defaultValue map[string]string) map[string]string {
 	envVar := os.Getenv(key)
 	if envVar == "" {
-		panic(key + ": environment variable not set")
+		return defaultValue
 	}
 
-	sources := make(map[string]string)
-	pairs := strings.Split(envVar, ";")
-	for _, pair := range pairs {
-		kv := strings.Split(pair, "=")
-		if len(kv) != 2 {
-			panic(key + ": invalid format for environment variable, should be key1=value1;key2=value2;...")
-		}
-		sources[kv[0]] = kv[1]
+	envVar = strings.TrimSpace(envVar)
+
+	var result map[string]string
+	if err := json.Unmarshal([]byte(envVar), &result); err != nil {
+		panic(key + ": invalid JSON format for environment variable, should be a JSON object like { \"key1\": \"value1\", \"key2\": \"value2\" }")
 	}
-	return sources
+	return result
 }
