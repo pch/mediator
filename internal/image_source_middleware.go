@@ -5,20 +5,20 @@ import (
 	"net/http"
 )
 
-type SourceMiddleware struct {
+type ImageSourceMiddleware struct {
 	config *Config
 	next   http.Handler
 }
 
-func NewSourceMiddleware(config *Config, next http.Handler) *SourceMiddleware {
-	return &SourceMiddleware{config, next}
+func NewImageSourceMiddleware(config *Config, next http.Handler) *ImageSourceMiddleware {
+	return &ImageSourceMiddleware{config, next}
 }
 
-func (h *SourceMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *ImageSourceMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	imageSource, err := NewImageSourceFromHttpRequest(r, h.config)
 
 	if err != nil {
-		slog.Error("Source not found", "error", err)
+		slog.Error("Image source not found", "error", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}

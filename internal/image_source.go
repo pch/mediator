@@ -23,7 +23,7 @@ func NewImageSourceFromHttpRequest(r *http.Request, config *Config) (*ImageSourc
 	source := r.PathValue("source")
 	path := r.PathValue("path")
 
-	baseURL, exists := config.Sources[source]
+	baseURL, exists := config.FindSourceByName(source)
 	if !exists {
 		return nil, fmt.Errorf("source not found: %s", source)
 	}

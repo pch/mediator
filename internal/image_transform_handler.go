@@ -20,7 +20,7 @@ func NewImageTransformHandler(config *Config) *ImageTransformHandler {
 	return &ImageTransformHandler{config}
 }
 
-func generateETag(sourceURL string, imageOptions *ImageOptions) string {
+func generateImageETag(sourceURL string, imageOptions *ImageOptions) string {
 	h := sha1.New()
 
 	io.WriteString(h, sourceURL)
@@ -38,7 +38,7 @@ func (h *ImageTransformHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 	imageSource := getImageSource(r.Context())
 	imageOptions := NewImageOptionsFromRequest(r)
 
-	etag := generateETag(imageSource.URL, imageOptions)
+	etag := generateImageETag(imageSource.URL, imageOptions)
 	w.Header().Set("ETag", etag)
 
 	if ifNoneMatch := r.Header.Get("If-None-Match"); ifNoneMatch != "" {

@@ -9,14 +9,17 @@ class Mediator
 
     ENDPOINTS = {
       transform: "/image/transform",
-      proxy: "/proxy"
-    }
+      render: "/render"
+    }.freeze
 
-    def url(endpoint, source, file_path, options = {})
-      raise "Unsupported endpoint" unless ENDPOINTS.keys.include?(endpoint)
-
-      mediator_path = [ENDPOINTS[endpoint], source, Addressable::URI.escape(file_path)].join("/")
+    def transform_url(source, file_path, options = {})
+      mediator_path = [ENDPOINTS[:transform], source, Addressable::URI.escape(file_path)].join("/")
       "#{base_url}#{signed_path(mediator_path, options)}"
+    end
+
+    def pdf_render_url(payload, renderer_options = {})
+      mediator_path = [ENDPOINTS[:render], :pdf, Base64.urlsafe_encode64(payload.to_json)].join("/")
+      "#{base_url}#{signed_path(mediator_path, renderer_options)}"
     end
 
     private

@@ -64,8 +64,9 @@ func DownloadFile(url string, maxSize int, requestTimeout time.Duration) (file *
 
 var copiedResponseHeaders = []string{
 	"Content-Type",
-	"Content-Disposition",
 	"Content-Length",
+	"Content-Encoding",
+	"Transfer-Encoding",
 }
 
 // Download file and stream it back as response
@@ -80,9 +81,11 @@ func ProxyFile(url string, maxSize int, requestTimeout time.Duration, r *http.Re
 			}
 		},
 		func(resp *http.Response) {
-			// copy selected response headers
+			// copy selected response headers, preserving any existing ones
 			for _, h := range copiedResponseHeaders {
-				w.Header().Set(h, resp.Header.Get(h))
+				if w.Header().Get(h) == "" { // only set if not already set
+					w.Header().Set(h, resp.Header.Get(h))
+				}
 			}
 
 			w.WriteHeader(resp.StatusCode)

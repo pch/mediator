@@ -1,6 +1,9 @@
 package internal
 
 import (
+	"encoding/json"
+	"fmt"
+	"log/slog"
 	"os"
 	"strconv"
 	"strings"
@@ -22,11 +25,17 @@ const (
 	defaultHttpWriteTimeout = 10 * time.Second
 )
 
+type SourceConfig struct {
+	Name string `json:"name"`
+	URL  string `json:"url"`
+}
+
 type Config struct {
 	DownloadMaxSize int
 	DownloadTimeout time.Duration
 
-	Sources      map[string]string
+	Sources      []SourceConfig
+	Renderers    []SourceConfig
 	SecretKey    string
 	AuthToken    string
 	CacheControl string
@@ -43,7 +52,8 @@ func NewConfig() (*Config, error) {
 		DownloadMaxSize: getEnvInt("MEDIATOR_DOWNLOAD_MAX_SIZE", defaultDownloadMaxSize),
 		DownloadTimeout: getEnvDuration("MEDIATOR_DOWNLOAD_TIMEOUT", defaultDownloadTimeout),
 
-		Sources:      getKeyValues("MEDIATOR_SOURCES"),
+		Sources:      getSourceConfigs("MEDIATOR_SOURCES"),
+		Renderers:    getSourceConfigs("MEDIATOR_RENDERERS"),
 		SecretKey:    getEnvString("MEDIATOR_SECRET_KEY", ""),
 		AuthToken:    getEnvString("MEDIATOR_AUTH_TOKEN", ""),
 		CacheControl: getEnvString("MEDIATOR_CACHE_CONTROL", defaultCacheControl),
@@ -93,20 +103,38 @@ func getEnvDuration(key string, defaultValue time.Duration) time.Duration {
 	return time.Duration(intValue) * time.Second
 }
 
-func getKeyValues(key string) map[string]string {
+func getSourceConfigs(key string) []SourceConfig {
 	envVar := os.Getenv(key)
 	if envVar == "" {
-		panic(key + ": environment variable not set")
+		return []SourceConfig{}
 	}
 
-	sources := make(map[string]string)
-	pairs := strings.Split(envVar, ";")
-	for _, pair := range pairs {
-		kv := strings.Split(pair, "=")
-		if len(kv) != 2 {
-			panic(key + ": invalid format for environment variable, should be key1=value1;key2=value2;...")
-		}
-		sources[kv[0]] = kv[1]
+	envVar = strings.TrimSpace(envVar)
+
+	var result []SourceConfig
+	if err := json.Unmarshal([]byte(envVar), &result); err != nil {
+		panic(key + ": invalid JSON format for environment variable, should be a JSON array like [{ \"name\": \"source1\", \"url\": \"http://example.com\" }]")
 	}
-	return sources
+
+	slog.Debug("parsing config", "key", key, "parsed", fmt.Sprintf("%+v", result))
+
+	return result
+}
+
+func (c *Config) FindSourceByName(name string) (string, bool) {
+	for _, source := range c.Sources {
+		if source.Name == name {
+			return source.URL, true
+		}
+	}
+	return "", false
+}
+
+func (c *Config) FindRendererByName(name string) (string, bool) {
+	for _, renderer := range c.Renderers {
+		if renderer.Name == name {
+			return renderer.URL, true
+		}
+	}
+	return "", false
 }
