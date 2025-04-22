@@ -184,6 +184,94 @@ accessories:
       traefik.tcp.services.mediator.loadbalancer.server.port: 8000
 ```
 
+### Deploying with Kubernetes
+
+Example configuration for a Kubernetes deployment:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mediator
+  labels:
+    app: mediator
+spec:
+  ports:
+    - port: 80
+      targetPort: 8000
+  selector:
+    app: mediator
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mediator-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mediator
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: mediator
+    spec:
+      containers:
+        - name: mediator
+          image: ghcr.io/pch/mediator:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: MEDIATOR_RENDERERS
+              value: '[{"name": "pdf", "url": "http://url2pdf/api/render?goto.waitUntil=networkidle0&scrollPage=true&waitFor=500&url=%s"}]'
+            - name: MEDIATOR_LOG_LEVEL
+              value: debug
+            - name: MEDIATOR_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: mediator-secret
+                  key: secret_key
+          readinessProbe:
+            httpGet:
+              scheme: HTTP
+              path: /
+              port: 8000
+            initialDelaySeconds: 5
+```
+
+You may also need to set up nginx ingress:
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-app-ingress-mediator
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  tls:
+    - hosts:
+        - mediator.example.com
+      secretName: my-app-tls
+  rules:
+    - host: mediator.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mediator
+                port:
+                  number: 80
+```
+
 ### CloudFront setup
 
 If you decide to use CloudFront for CDN, there are only a few considerations to take into account:
