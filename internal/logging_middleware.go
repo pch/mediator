@@ -33,6 +33,6 @@ func (h *LoggingMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		"remote_addr", remoteAddr,
 		"user_agent", userAgent,
 		"resp_content_type", respContent,
-		"duration", elapsed,
+		"duration", float64(elapsed.Nanoseconds())/1_000_000,
 	)
 }
