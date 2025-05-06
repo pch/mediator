@@ -23,18 +23,16 @@ func (h *LoggingMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	userAgent := r.Header.Get("User-Agent")
 	remoteAddr := r.Header.Get("X-Forwarded-For")
-	queryString := r.URL.Query().Encode()
 	respContent := newWriter.Header().Get("Content-Type")
+
+	fullURL := currentRequestHost(r) + r.URL.String()
 
 	slog.Info("Request",
 		"method", r.Method,
-		"host", currentRequestHost(r),
-		"path", r.URL.Path,
-		"query", queryString,
+		"url", fullURL,
 		"remote_addr", remoteAddr,
 		"user_agent", userAgent,
 		"resp_content_type", respContent,
 		"duration", elapsed,
-		"headers", r.Header,
 	)
 }
