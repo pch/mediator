@@ -7,7 +7,7 @@ build:
 	docker buildx build --push --target production --platform linux/amd64,linux/arm64 --tag ${IMAGE}:${VERSION} --tag ${IMAGE}:latest .
 
 build-dev:
-	docker buildx build --target development --tag ${IMAGE_DEV} --progress plain .
+	docker buildx build --target development --tag ${IMAGE_DEV} --progress plain --load .
 
 run-dev:
 	docker run --rm -it --env-file .env \

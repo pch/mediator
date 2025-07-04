@@ -85,6 +85,7 @@ func (h *RenderHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	_, err = ProxyFile(finalURL, h.config.DownloadMaxSize, h.config.DownloadTimeout, r, w)
 	if err != nil {
+		slog.Error("Error when downloading the file", "error", err)
 		http.Error(w, "Error when downloading the file", http.StatusInternalServerError)
 		return
 	}
