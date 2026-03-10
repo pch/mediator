@@ -151,13 +151,15 @@ func doRequest(url string, maxSize int, requestTimeout time.Duration, reqHandler
 	}, nil
 }
 
-func newHttpClient(timout time.Duration) *http.Client {
+func newHttpClient(timeout time.Duration) *http.Client {
 	return &http.Client{
+		Timeout: timeout,
 		Transport: &http.Transport{
-			Dial: (&net.Dialer{
-				Timeout: timout,
-			}).Dial,
-			TLSHandshakeTimeout: timout,
+			DialContext: (&net.Dialer{
+				Timeout: timeout,
+			}).DialContext,
+			TLSHandshakeTimeout:   timeout,
+			ResponseHeaderTimeout: timeout,
 		},
 	}
 }
