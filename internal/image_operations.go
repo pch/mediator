@@ -133,6 +133,17 @@ func fitSizeToLimits(image *vips.ImageRef, imageOptions *ImageOptions) (int, int
 		fitHeight = imageOptions.Width
 	}
 
+	// One-sided resize: calculate the missing dimension from aspect ratio.
+	if fitWidth == 0 {
+		fitWidth = int(math.Round(float64(fitHeight) * float64(originalWidth) / float64(originalHeight)))
+		return fitWidth, fitHeight
+	}
+
+	if fitHeight == 0 {
+		fitHeight = int(math.Round(float64(fitWidth) * float64(originalHeight) / float64(originalWidth)))
+		return fitWidth, fitHeight
+	}
+
 	if originalWidth*fitHeight > fitWidth*originalHeight {
 		fitHeight = int(math.Round(float64(fitWidth) * float64(originalHeight) / float64(originalWidth)))
 	} else {
