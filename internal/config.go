@@ -19,6 +19,8 @@ const (
 
 	defaultCacheControl = "public, max-age=31536000"
 
+	defaultMaxConcurrentTransforms = 10
+
 	defaultHttpPort         = 8000
 	defaultHttpIdleTimeout  = 30 * time.Second
 	defaultHttpReadTimeout  = 10 * time.Second
@@ -38,8 +40,9 @@ type Config struct {
 	Renderers    []SourceConfig
 	SecretKey    string
 	AuthToken    string
-	CacheControl string
-	PathPrefix   string
+	MaxConcurrentTransforms int
+	CacheControl            string
+	PathPrefix              string
 
 	HttpPort         int
 	HttpIdleTimeout  time.Duration
@@ -62,7 +65,9 @@ func NewConfig() (*Config, error) {
 		DownloadMaxSize: getEnvInt("MEDIATOR_DOWNLOAD_MAX_SIZE", defaultDownloadMaxSize),
 		DownloadTimeout: getEnvDuration("MEDIATOR_DOWNLOAD_TIMEOUT", defaultDownloadTimeout),
 
-		Sources:      sources,
+		MaxConcurrentTransforms: getEnvInt("MEDIATOR_MAX_CONCURRENT_TRANSFORMS", defaultMaxConcurrentTransforms),
+
+		Sources: sources,
 		Renderers:    renderers,
 		SecretKey:    getEnvString("MEDIATOR_SECRET_KEY", ""),
 		AuthToken:    getEnvString("MEDIATOR_AUTH_TOKEN", ""),

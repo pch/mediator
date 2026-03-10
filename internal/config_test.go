@@ -24,6 +24,9 @@ func TestNewConfigDefaults(t *testing.T) {
 	if cfg.HttpPort != defaultHttpPort {
 		t.Fatalf("HttpPort = %d, want %d", cfg.HttpPort, defaultHttpPort)
 	}
+	if cfg.MaxConcurrentTransforms != defaultMaxConcurrentTransforms {
+		t.Fatalf("MaxConcurrentTransforms = %d, want %d", cfg.MaxConcurrentTransforms, defaultMaxConcurrentTransforms)
+	}
 	if len(cfg.Sources) != 0 || len(cfg.Renderers) != 0 {
 		t.Fatalf("expected empty Sources/Renderers by default")
 	}
@@ -38,6 +41,7 @@ func TestNewConfigOverridesAndLookups(t *testing.T) {
 	t.Setenv("MEDIATOR_HTTP_IDLE_TIMEOUT", "11")
 	t.Setenv("MEDIATOR_HTTP_READ_TIMEOUT", "12")
 	t.Setenv("MEDIATOR_HTTP_WRITE_TIMEOUT", "13")
+	t.Setenv("MEDIATOR_MAX_CONCURRENT_TRANSFORMS", "5")
 	t.Setenv("MEDIATOR_SOURCES", `[{"name":"images","url":"https://cdn.example.com"}]`)
 	t.Setenv("MEDIATOR_RENDERERS", `[{"name":"pdf","url":"https://renderer.example.com?url=%s"}]`)
 
@@ -60,6 +64,9 @@ func TestNewConfigOverridesAndLookups(t *testing.T) {
 	}
 	if cfg.HttpPort != 18080 {
 		t.Fatalf("HttpPort = %d", cfg.HttpPort)
+	}
+	if cfg.MaxConcurrentTransforms != 5 {
+		t.Fatalf("MaxConcurrentTransforms = %d, want 5", cfg.MaxConcurrentTransforms)
 	}
 
 	if url, ok := cfg.FindSourceByName("images"); !ok || url != "https://cdn.example.com" {

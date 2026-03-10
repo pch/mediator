@@ -14,10 +14,19 @@ import (
 
 type ImageTransformHandler struct {
 	config *Config
+	sem    chan struct{}
 }
 
 func NewImageTransformHandler(config *Config) *ImageTransformHandler {
-	return &ImageTransformHandler{config}
+	maxConcurrent := config.MaxConcurrentTransforms
+	if maxConcurrent <= 0 {
+		maxConcurrent = defaultMaxConcurrentTransforms
+	}
+
+	return &ImageTransformHandler{
+		config: config,
+		sem:    make(chan struct{}, maxConcurrent),
+	}
 }
 
 func generateImageETag(sourceURL string, imageOptions *ImageOptions) string {
@@ -59,6 +68,14 @@ func (h *ImageTransformHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 			w.WriteHeader(http.StatusNotModified)
 			return
 		}
+	}
+
+	select {
+	case h.sem <- struct{}{}:
+		defer func() { <-h.sem }()
+	case <-r.Context().Done():
+		http.Error(w, "Request cancelled", http.StatusServiceUnavailable)
+		return
 	}
 
 	downloadedFile, err := DownloadFile(imageSource.URL, h.config.DownloadMaxSize, h.config.DownloadTimeout)
