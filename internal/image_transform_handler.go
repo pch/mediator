@@ -29,6 +29,9 @@ func generateImageETag(sourceURL string, imageOptions *ImageOptions) string {
 	io.WriteString(h, fmt.Sprintf("%d", imageOptions.Quality))
 	io.WriteString(h, fmt.Sprintf("%v", imageOptions.StripMetadata))
 	io.WriteString(h, fmt.Sprintf("%v", imageOptions.Format))
+	io.WriteString(h, fmt.Sprintf("%s", imageOptions.RequestedFormat))
+	io.WriteString(h, fmt.Sprintf("%d", imageOptions.PixelateFactor))
+	io.WriteString(h, fmt.Sprintf("%d", imageOptions.Page))
 	io.WriteString(h, strings.Join(imageOptions.Operations, ","))
 
 	return fmt.Sprintf("\"%x\"", h.Sum(nil))
