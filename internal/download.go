@@ -104,13 +104,38 @@ func ProxyFile(url string, maxSize int, requestTimeout time.Duration, r *http.Re
 }
 
 func checkFileSize(maxSize int, contentLength string) (int, error) {
-	size, _ := strconv.Atoi(contentLength)
+	if contentLength == "" {
+		return 0, nil
+	}
+
+	size, err := strconv.Atoi(contentLength)
+	if err != nil {
+		return 0, nil
+	}
 
 	if size > maxSize {
 		return size, fmt.Errorf("file too big: %d (max: %d)", size, maxSize)
 	}
 
 	return size, nil
+}
+
+func copyWithSizeLimit(out io.Writer, in io.Reader, maxSize int) (int64, error) {
+	readLimit := int64(maxSize) + 1
+	if maxSize < 0 {
+		readLimit = 0
+	}
+
+	bytesCopied, err := io.Copy(out, io.LimitReader(in, readLimit))
+	if err != nil {
+		return bytesCopied, err
+	}
+
+	if bytesCopied > int64(maxSize) {
+		return bytesCopied, fmt.Errorf("file too big: %d (max: %d)", bytesCopied, maxSize)
+	}
+
+	return bytesCopied, nil
 }
 
 func doRequest(url string, maxSize int, requestTimeout time.Duration, reqHandler requestHandler, respHandler responseHandler, out io.Writer) (*DownloadedFile, error) {
@@ -137,7 +162,7 @@ func doRequest(url string, maxSize int, requestTimeout time.Duration, reqHandler
 
 	respHandler(resp)
 
-	_, err = io.Copy(out, resp.Body)
+	_, err = copyWithSizeLimit(out, resp.Body, maxSize)
 	if err != nil {
 		return nil, err
 	}
