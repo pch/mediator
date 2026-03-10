@@ -21,7 +21,7 @@ func (h *DefaultRouteHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 

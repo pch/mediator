@@ -52,7 +52,7 @@ func (h *ImageTransformHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 	downloadedFile, err := DownloadFile(imageSource.URL, h.config.DownloadMaxSize, h.config.DownloadTimeout)
 	if err != nil {
 		slog.Error("Download error", "error", err)
-		http.Error(w, "Download error: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
@@ -70,7 +70,7 @@ func (h *ImageTransformHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 	processedImage, err := TransformImage(downloadedFile.Buffer.Bytes(), imageOptions)
 	if err != nil {
 		slog.Error("TransformImage error", "error", err)
-		http.Error(w, "Error: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
