@@ -88,6 +88,15 @@ func ProxyFile(url string, maxSize int, requestTimeout time.Duration, r *http.Re
 				}
 			}
 
+			// Prevent caching when the upstream proxy response is not 200.
+			// This is important because handlers may set cache headers before proxying.
+			if resp.StatusCode != http.StatusOK {
+				w.Header().Del("ETag")
+				w.Header().Set("Cache-Control", "no-store")
+				w.Header().Set("Pragma", "no-cache")
+				w.Header().Set("Expires", "0")
+			}
+
 			w.WriteHeader(resp.StatusCode)
 		},
 		w,

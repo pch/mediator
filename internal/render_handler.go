@@ -18,6 +18,14 @@ func NewRenderHandler(config *Config) *RenderHandler {
 	return &RenderHandler{config}
 }
 
+func writeNoStoreError(w http.ResponseWriter, message string, statusCode int) {
+	w.Header().Del("ETag")
+	w.Header().Set("Cache-Control", "no-store")
+	w.Header().Set("Pragma", "no-cache")
+	w.Header().Set("Expires", "0")
+	http.Error(w, message, statusCode)
+}
+
 func assembleRendererURL(baseURL string, capturedURL string, queryParams url.Values) (string, error) {
 	escapedURL := url.QueryEscape(capturedURL)
 	finalURL := fmt.Sprintf(baseURL, escapedURL)
@@ -55,7 +63,7 @@ func (h *RenderHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	payload, err := DecodePayloadFromBase64(payloadBase64)
 	if err != nil {
 		slog.Error("Failed to decode payload", "error", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		writeNoStoreError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -64,14 +72,14 @@ func (h *RenderHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	rendererURL, exists := h.config.FindRendererByName(renderer)
 	if !exists {
 		slog.Error("Renderer not supported", "renderer", renderer)
-		http.Error(w, "Renderer not supported", http.StatusBadRequest)
+		writeNoStoreError(w, "Renderer not supported", http.StatusBadRequest)
 		return
 	}
 
 	finalURL, err := assembleRendererURL(rendererURL, payload.URL, r.URL.Query())
 	if err != nil {
 		slog.Error("Failed to assemble renderer URL", "error", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		writeNoStoreError(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
@@ -86,7 +94,7 @@ func (h *RenderHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	_, err = ProxyFile(finalURL, h.config.DownloadMaxSize, h.config.DownloadTimeout, r, w)
 	if err != nil {
 		slog.Error("Error when downloading the file", "error", err)
-		http.Error(w, "Error when downloading the file", http.StatusInternalServerError)
+		writeNoStoreError(w, "Error when downloading the file", http.StatusInternalServerError)
 		return
 	}
 }
