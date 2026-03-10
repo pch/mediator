@@ -30,7 +30,7 @@ See also: [example code](https://github.com/pch/mediator/tree/main/examples)
 - **Easy to integrate**. Works with any CDN and storage provider.
 - **Easy to deploy**. Just use the provided Docker image.
 - **Most common image operations**. Resize, crop, apply effects, and more.
-- **Auto WebP**. Auto-convert images to WebP and serve them to browsers that support it.
+- **Auto modern formats**. Auto-convert images to AVIF/WebP and serve them to browsers that support it.
 - **PDF preview**. Generate preview images for PDF files.
 
 ## Considerations
@@ -65,7 +65,7 @@ The `/image/transform` endpoint accepts the following query parameters:
 | `op`             | Operation names, separated by commas. Supported operations: `fit`, `smartcrop`, `pixelate`. Default: `fit`                                                                       |
 | `w`              | Width of the target image.                                                                                                                                                       |
 | `h`              | Height of the target image.                                                                                                                                                      |
-| `format`         | Output format. Supported values: `jpeg`, `png`, `gif`, `webp`, `auto`. Defaults to `Content-Type` of the requested image. Set `auto` to return WebP to browsers that support it. |
+| `format`         | Output format. Supported values: `jpeg`, `png`, `gif`, `webp`, `avif`, `heif` (`heic` alias), `auto`. Defaults to `Content-Type` of the requested image. Set `auto` to return AVIF/WebP to browsers that support it. |
 | `strip`          | Strip metadata from the image. Supported values: `true`, `false`. Default: `true`                                                                                                |
 | `q`              | Quality of the output image. Supported values: `0-100`. Default: `80`                                                                                                            |
 | `pixelatefactor` | Pixelate factor, for example: `1-100`. The smaller the number, the less "pixelized" the result will be. Default: `20`                                                            |
@@ -278,4 +278,4 @@ If you decide to use CloudFront for CDN, there are only a few considerations to 
 
 - When setting up an origin, make sure to set the `Authorization` header to `Bearer <YOUR_AUTH_TOKEN>` to prevent direct (non-cached) access to the service.
 - In the Behavior settings, you have to make sure that the query string is forwarded
-- In the "Choose which headers to include in the cache key" part, add the `Accept` header if you want to serve WebP images to browsers that support it.
+- In the "Choose which headers to include in the cache key" part, add the `Accept` header if you want to serve AVIF/WebP images to browsers that support it.

@@ -26,8 +26,9 @@ func TransformImage(imageBytes []byte, imageOptions *ImageOptions) (*ProcessedIm
 		return nil, fmt.Errorf("no operations specified")
 	}
 
+	downloadedImageType := vips.DetermineImageType(imageBytes)
 	params := vips.NewImportParams()
-	params.Page.Set(imageOptions.Page)
+	params.Page.Set(importPageForImageType(imageOptions.Page, downloadedImageType))
 
 	image, err := vips.LoadImageFromBuffer(imageBytes, params)
 	if err != nil {
@@ -49,6 +50,22 @@ func TransformImage(imageBytes []byte, imageOptions *ImageOptions) (*ProcessedIm
 	}
 
 	return ExportImage(image, imageOptions)
+}
+
+func importPageForImageType(page int, imageType vips.ImageType) int {
+	if page < 0 {
+		page = 0
+	}
+
+	// libheif-based loaders expect zero-based page indices.
+	if imageType == vips.ImageTypeHEIF || imageType == vips.ImageTypeAVIF {
+		if page == 0 {
+			return 0
+		}
+		return page - 1
+	}
+
+	return page
 }
 
 func FitImage(image *vips.ImageRef, imageOptions *ImageOptions) error {

@@ -13,8 +13,10 @@ func TestImageType(t *testing.T) {
 		"png":  vips.ImageTypePNG,
 		"webp": vips.ImageTypeWEBP,
 		"gif":  vips.ImageTypeGIF,
+		"avif": vips.ImageTypeAVIF,
+		"heif": vips.ImageTypeHEIF,
+		"heic": vips.ImageTypeHEIF,
 		"pdf":  vips.ImageTypePDF,
-		"avif": vips.ImageTypeUnknown,
 	}
 
 	for input, want := range cases {
@@ -32,8 +34,15 @@ func TestImageTypeFromMimeTypeAndAccept(t *testing.T) {
 		t.Fatalf("ImageTypeFromMimeType(unknown) = %v", got)
 	}
 
-	if got := ImageTypeFromAccept("image/avif,image/webp,image/jpeg"); got != vips.ImageTypeWEBP {
-		t.Fatalf("ImageTypeFromAccept() = %v, want WEBP", got)
+	if got := ImageTypeFromMimeType("image/heic"); got != vips.ImageTypeHEIF {
+		t.Fatalf("ImageTypeFromMimeType(heic) = %v", got)
+	}
+	if got := ImageTypeFromMimeType("image/avif"); got != vips.ImageTypeAVIF {
+		t.Fatalf("ImageTypeFromMimeType(avif) = %v", got)
+	}
+
+	if got := ImageTypeFromAccept("image/avif,image/webp,image/jpeg"); got != vips.ImageTypeAVIF {
+		t.Fatalf("ImageTypeFromAccept() = %v, want AVIF", got)
 	}
 	if got := ImageTypeFromAccept("text/html"); got != vips.ImageTypeUnknown {
 		t.Fatalf("ImageTypeFromAccept(unknown) = %v", got)
@@ -43,6 +52,12 @@ func TestImageTypeFromMimeTypeAndAccept(t *testing.T) {
 func TestMimeTypeFromImageType(t *testing.T) {
 	if got := MimeTypeFromImageType(vips.ImageTypePNG); got != "image/png" {
 		t.Fatalf("MimeTypeFromImageType(PNG) = %q", got)
+	}
+	if got := MimeTypeFromImageType(vips.ImageTypeAVIF); got != "image/avif" {
+		t.Fatalf("MimeTypeFromImageType(AVIF) = %q", got)
+	}
+	if got := MimeTypeFromImageType(vips.ImageTypeHEIF); got != "image/heif" {
+		t.Fatalf("MimeTypeFromImageType(HEIF) = %q", got)
 	}
 	if got := MimeTypeFromImageType(vips.ImageTypeWEBP); got != "image/webp" {
 		t.Fatalf("MimeTypeFromImageType(WEBP) = %q", got)

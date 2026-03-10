@@ -52,8 +52,8 @@ func TestNewImageOptionsFromRequestParsesValues(t *testing.T) {
 	if opts.RequestedFormat != "auto" {
 		t.Fatalf("RequestedFormat = %q", opts.RequestedFormat)
 	}
-	if opts.Format != vips.ImageTypeWEBP {
-		t.Fatalf("Format = %v, want WEBP", opts.Format)
+	if opts.Format != vips.ImageTypeAVIF {
+		t.Fatalf("Format = %v, want AVIF", opts.Format)
 	}
 	if opts.PixelateFactor != 17 || opts.Page != 3 {
 		t.Fatalf("pixelate/page = %d/%d", opts.PixelateFactor, opts.Page)

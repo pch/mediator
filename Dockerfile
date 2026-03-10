@@ -4,7 +4,8 @@ WORKDIR /app
 
 RUN apk add --no-cache \
   build-base \
-  vips-dev
+  vips-dev \
+  vips-heif
 
 COPY go.mod ./
 RUN go mod download
@@ -16,7 +17,8 @@ RUN go build -ldflags "-X main.Version=$(cat VERSION | tr -d '\n')" -o ./bin/med
 FROM alpine:latest AS production
 
 RUN apk add --no-cache \
-  vips-dev
+  vips-dev \
+  vips-heif
 
 WORKDIR /app
 COPY --from=builder /app/bin/mediator .

@@ -37,6 +37,15 @@ func generateImageETag(sourceURL string, imageOptions *ImageOptions) string {
 	return fmt.Sprintf("\"%x\"", h.Sum(nil))
 }
 
+func detectDownloadedImageType(downloadedFile *DownloadedFile) vips.ImageType {
+	imageType := ImageTypeFromMimeType(downloadedFile.ContentType)
+	if imageType != vips.ImageTypeUnknown {
+		return imageType
+	}
+
+	return vips.DetermineImageType(downloadedFile.Buffer.Bytes())
+}
+
 func (h *ImageTransformHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	imageSource := getImageSource(r.Context())
 	imageOptions := NewImageOptionsFromRequest(r)
@@ -59,15 +68,19 @@ func (h *ImageTransformHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	downloadedImageType := ImageTypeFromMimeType(downloadedFile.ContentType)
-	if downloadedImageType == vips.ImageTypeUnknown {
+	downloadedImageType := detectDownloadedImageType(downloadedFile)
+	if downloadedImageType == vips.ImageTypeUnknown || !vips.IsTypeSupported(downloadedImageType) {
 		slog.Error("Unsupported image format: "+downloadedFile.ContentType, "error", err)
 		http.Error(w, "Unsupported image format: "+downloadedFile.ContentType, http.StatusUnprocessableEntity)
 		return
 	}
 
 	if imageOptions.Format == vips.ImageTypeUnknown {
-		imageOptions.Format = downloadedImageType
+		if IsImageExportSupported(downloadedImageType) {
+			imageOptions.Format = downloadedImageType
+		} else {
+			imageOptions.Format = vips.ImageTypeJPEG
+		}
 	}
 
 	processedImage, err := TransformImage(downloadedFile.Buffer.Bytes(), imageOptions)

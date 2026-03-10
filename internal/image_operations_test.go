@@ -99,3 +99,18 @@ func TestTransformImageUnknownOperation(t *testing.T) {
 		t.Fatalf("expected unsupported operation error")
 	}
 }
+
+func TestImportPageForImageType(t *testing.T) {
+	if got := importPageForImageType(1, vips.ImageTypeAVIF); got != 0 {
+		t.Fatalf("AVIF page 1 should map to 0, got %d", got)
+	}
+	if got := importPageForImageType(2, vips.ImageTypeHEIF); got != 1 {
+		t.Fatalf("HEIF page 2 should map to 1, got %d", got)
+	}
+	if got := importPageForImageType(0, vips.ImageTypeHEIF); got != 0 {
+		t.Fatalf("HEIF page 0 should remain 0, got %d", got)
+	}
+	if got := importPageForImageType(1, vips.ImageTypeGIF); got != 1 {
+		t.Fatalf("GIF page should not be remapped, got %d", got)
+	}
+}

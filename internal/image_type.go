@@ -17,6 +17,10 @@ func ImageType(name string) vips.ImageType {
 		return vips.ImageTypeWEBP
 	case "gif":
 		return vips.ImageTypeGIF
+	case "avif":
+		return vips.ImageTypeAVIF
+	case "heif", "heic":
+		return vips.ImageTypeHEIF
 	case "pdf":
 		return vips.ImageTypePDF
 	default:
@@ -35,6 +39,10 @@ func ImageTypeFromMimeType(mimeType string) vips.ImageType {
 		return vips.ImageTypeWEBP
 	case "image/gif":
 		return vips.ImageTypeGIF
+	case "image/avif":
+		return vips.ImageTypeAVIF
+	case "image/heif", "image/heic":
+		return vips.ImageTypeHEIF
 	case "application/pdf":
 		return vips.ImageTypePDF
 	default:
@@ -46,6 +54,8 @@ func ImageTypeFromAccept(accept string) vips.ImageType {
 	for _, v := range strings.Split(accept, ",") {
 		mediaType, _, _ := mime.ParseMediaType(v)
 		switch mediaType {
+		case "image/avif":
+			return vips.ImageTypeAVIF
 		case "image/webp":
 			return vips.ImageTypeWEBP
 		case "image/png":
@@ -64,6 +74,10 @@ func MimeTypeFromImageType(code vips.ImageType) string {
 	switch code {
 	case vips.ImageTypePNG:
 		return "image/png"
+	case vips.ImageTypeAVIF:
+		return "image/avif"
+	case vips.ImageTypeHEIF:
+		return "image/heif"
 	case vips.ImageTypeWEBP:
 		return "image/webp"
 	case vips.ImageTypeGIF:

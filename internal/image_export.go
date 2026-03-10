@@ -11,9 +11,16 @@ var ImageExportMap = map[vips.ImageType]ImageExport{
 	vips.ImageTypePNG:  ExportPNG,
 	vips.ImageTypeWEBP: ExportWEBP,
 	vips.ImageTypeGIF:  ExportGIF,
+	vips.ImageTypeHEIF: ExportHEIF,
+	vips.ImageTypeAVIF: ExportAVIF,
 }
 
 type ImageExport func(*vips.ImageRef, *ImageOptions) ([]byte, error)
+
+func IsImageExportSupported(imageType vips.ImageType) bool {
+	_, exists := ImageExportMap[imageType]
+	return exists
+}
 
 func ExportImage(image *vips.ImageRef, imageOptions *ImageOptions) (*ProcessedImage, error) {
 	if imageOptions.AutoRotate {
@@ -98,6 +105,31 @@ func ExportGIF(image *vips.ImageRef, imageOptions *ImageOptions) ([]byte, error)
 
 	fileBytes, _, err := image.ExportGIF(ep)
 
+	if err != nil {
+		return nil, err
+	}
+
+	return fileBytes, nil
+}
+
+func ExportHEIF(image *vips.ImageRef, imageOptions *ImageOptions) ([]byte, error) {
+	ep := vips.NewHeifExportParams()
+	ep.Quality = imageOptions.Quality
+
+	fileBytes, _, err := image.ExportHeif(ep)
+	if err != nil {
+		return nil, err
+	}
+
+	return fileBytes, nil
+}
+
+func ExportAVIF(image *vips.ImageRef, imageOptions *ImageOptions) ([]byte, error) {
+	ep := vips.NewAvifExportParams()
+	ep.StripMetadata = imageOptions.StripMetadata
+	ep.Quality = imageOptions.Quality
+
+	fileBytes, _, err := image.ExportAvif(ep)
 	if err != nil {
 		return nil, err
 	}
