@@ -48,12 +48,22 @@ type Config struct {
 }
 
 func NewConfig() (*Config, error) {
+	sources, err := getSourceConfigs("MEDIATOR_SOURCES")
+	if err != nil {
+		return nil, err
+	}
+
+	renderers, err := getSourceConfigs("MEDIATOR_RENDERERS")
+	if err != nil {
+		return nil, err
+	}
+
 	return &Config{
 		DownloadMaxSize: getEnvInt("MEDIATOR_DOWNLOAD_MAX_SIZE", defaultDownloadMaxSize),
 		DownloadTimeout: getEnvDuration("MEDIATOR_DOWNLOAD_TIMEOUT", defaultDownloadTimeout),
 
-		Sources:      getSourceConfigs("MEDIATOR_SOURCES"),
-		Renderers:    getSourceConfigs("MEDIATOR_RENDERERS"),
+		Sources:      sources,
+		Renderers:    renderers,
 		SecretKey:    getEnvString("MEDIATOR_SECRET_KEY", ""),
 		AuthToken:    getEnvString("MEDIATOR_AUTH_TOKEN", ""),
 		CacheControl: getEnvString("MEDIATOR_CACHE_CONTROL", defaultCacheControl),
@@ -103,22 +113,22 @@ func getEnvDuration(key string, defaultValue time.Duration) time.Duration {
 	return time.Duration(intValue) * time.Second
 }
 
-func getSourceConfigs(key string) []SourceConfig {
+func getSourceConfigs(key string) ([]SourceConfig, error) {
 	envVar := os.Getenv(key)
 	if envVar == "" {
-		return []SourceConfig{}
+		return []SourceConfig{}, nil
 	}
 
 	envVar = strings.TrimSpace(envVar)
 
 	var result []SourceConfig
 	if err := json.Unmarshal([]byte(envVar), &result); err != nil {
-		panic(key + ": invalid JSON format for environment variable, should be a JSON array like [{ \"name\": \"source1\", \"url\": \"http://example.com\" }]")
+		return nil, fmt.Errorf("%s: invalid JSON format for environment variable, should be a JSON array like [{ \"name\": \"source1\", \"url\": \"http://example.com\" }]: %w", key, err)
 	}
 
 	slog.Debug("parsing config", "key", key, "parsed", fmt.Sprintf("%+v", result))
 
-	return result
+	return result, nil
 }
 
 func (c *Config) FindSourceByName(name string) (string, bool) {
