@@ -30,6 +30,7 @@ func (h *LoggingMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	slog.Info("Request",
 		"method", r.Method,
 		"url", fullURL,
+		"status_code", newWriter.statusCode,
 		"remote_addr", remoteAddr,
 		"user_agent", userAgent,
 		"resp_content_type", respContent,
