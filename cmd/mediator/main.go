@@ -32,7 +32,10 @@ func main() {
 
 	handler := internal.NewHandler(config)
 	server := internal.NewHttpServer(config, handler)
-	server.Start()
+	if err := server.Start(); err != nil {
+		slog.Error("Failed to start server", "error", err)
+		os.Exit(1)
+	}
 	defer server.Stop()
 
 	quit := make(chan os.Signal, 1)

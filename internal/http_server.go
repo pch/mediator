@@ -2,8 +2,10 @@ package internal
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
+	"net"
 	"net/http"
 	"time"
 )
@@ -21,7 +23,7 @@ func NewHttpServer(config *Config, handler http.Handler) *HttpServer {
 	}
 }
 
-func (s *HttpServer) Start() {
+func (s *HttpServer) Start() error {
 	httpAddress := fmt.Sprintf(":%d", s.config.HttpPort)
 
 	slog.Info("Server starting", "http", httpAddress)
@@ -29,19 +31,38 @@ func (s *HttpServer) Start() {
 	s.httpServer = s.newHttpServer(httpAddress)
 	s.httpServer.Handler = s.handler
 
-	go s.httpServer.ListenAndServe()
+	listener, err := net.Listen("tcp", httpAddress)
+	if err != nil {
+		return fmt.Errorf("failed to listen on %s: %w", httpAddress, err)
+	}
+
+	go func() {
+		if err := s.httpServer.Serve(listener); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			slog.Error("Server failed", "http", httpAddress, "error", err)
+		}
+	}()
 
 	slog.Info("Server started", "http", httpAddress)
+
+	return nil
 }
 
 func (s *HttpServer) Stop() {
+	if s.httpServer == nil {
+		return
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
-	defer slog.Info("Server stopped")
 
 	slog.Info("Server stopping...")
 
-	s.httpServer.Shutdown(ctx)
+	if err := s.httpServer.Shutdown(ctx); err != nil {
+		slog.Error("Server shutdown failed", "error", err)
+		return
+	}
+
+	slog.Info("Server stopped")
 }
 
 func (s *HttpServer) newHttpServer(addr string) *http.Server {
