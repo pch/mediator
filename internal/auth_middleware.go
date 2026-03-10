@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"crypto/subtle"
 	"net/http"
+	"strings"
 )
 
 type AuthMiddleware struct {
@@ -22,14 +23,14 @@ func (h *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	authHeader := r.Header.Get("Authorization")
-	const prefix = "Bearer "
+	authFields := strings.Fields(authHeader)
 
-	if len(authHeader) <= len(prefix) {
+	if len(authFields) != 2 || !strings.EqualFold(authFields[0], "Bearer") {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
-	token := authHeader[len(prefix):]
+	token := authFields[1]
 
 	hashedToken := sha256.Sum256([]byte(token))
 	hashedAuthToken := sha256.Sum256([]byte(h.config.AuthToken))
